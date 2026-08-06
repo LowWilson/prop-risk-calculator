@@ -4,103 +4,70 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#050505">
-  <meta name="description" content="MGC・MNQ・MYMの1枚あたりのストップロス金額を計算">
+  <meta name="description" content="MGC・MNQ・MYMのリスク、利益、RR、TP価格を計算">
   <title>Risk One</title>
   <link rel="manifest" href="./manifest.json">
   <link rel="icon" href="./icon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="./style.css">
 </head>
 <body>
-  <main class="shell">
-    <header class="topbar">
-      <div>
-        <p class="eyebrow">FUTURES RISK CALCULATOR</p>
-        <h1>Risk One</h1>
-      </div>
-      <div class="status" id="offlineStatus" aria-live="polite">
-        <span class="status-dot"></span>
-        <span id="statusText">ONLINE</span>
-      </div>
-    </header>
+<main class="shell">
+  <header class="topbar">
+    <div><p class="eyebrow">FUTURES RISK CALCULATOR</p><h1>Risk One</h1></div>
+    <div class="status" id="offlineStatus"><span class="dot"></span><span id="statusText">ONLINE</span></div>
+  </header>
 
-    <section class="hero">
-      <h2>Risk Calculator</h2>
+  <section class="hero"><h2>Risk Calculator</h2></section>
+
+  <section class="card">
+    <label class="section-label">銘柄</label>
+    <div class="symbols">
+      <button class="symbol active" data-symbol="MGC"><b>MGC</b><small>Micro Gold</small></button>
+      <button class="symbol" data-symbol="MNQ"><b>MNQ</b><small>Micro Nasdaq</small></button>
+      <button class="symbol" data-symbol="MYM"><b>MYM</b><small>Micro Dow</small></button>
+    </div>
+
+    <div class="grid">
+      <label>Entry価格<input id="entryPrice" inputmode="decimal" placeholder="例 3400.0"></label>
+      <label>Stop Loss価格<input id="slPrice" inputmode="decimal" placeholder="例 3395.0"></label>
+      <label>枚数<input id="contracts" inputmode="numeric" value="1" placeholder="例 2"></label>
+      <label>目標RR<input id="rrTarget" inputmode="decimal" placeholder="例 2"></label>
+      <label class="wide">Take Profit価格<input id="tpPrice" inputmode="decimal" placeholder="RR入力で自動計算"></label>
+    </div>
+
+    <section class="risk result">
+      <span class="result-label">TOTAL RISK</span>
+      <div class="money">$<strong id="riskValue">—</strong></div>
+      <p id="resultHint">EntryとStop Lossを入力してください</p>
+      <div class="metrics">
+        <div><span>1枚の損失</span><b id="riskOne">—</b></div>
+        <div><span>SL幅</span><b id="slDistance">—</b></div>
+        <div><span>Ticks</span><b id="ticks">—</b></div>
+      </div>
     </section>
 
-    <section class="calculator-card">
-      <div class="field-group">
-        <label>銘柄</label>
-        <div class="symbol-tabs" role="radiogroup" aria-label="銘柄選択">
-          <button class="symbol-tab active" type="button" data-symbol="MGC" role="radio" aria-checked="true">
-            <strong>MGC</strong><span>Micro Gold</span>
-          </button>
-          <button class="symbol-tab" type="button" data-symbol="MNQ" role="radio" aria-checked="false">
-            <strong>MNQ</strong><span>Micro Nasdaq</span>
-          </button>
-          <button class="symbol-tab" type="button" data-symbol="MYM" role="radio" aria-checked="false">
-            <strong>MYM</strong><span>Micro Dow</span>
-          </button>
-        </div>
+    <section class="reward result">
+      <div class="reward-head">
+        <div><span class="result-label">TOTAL REWARD</span><strong id="rewardValue">$—</strong></div>
+        <div class="rr"><span>RR</span><b id="actualRr">—</b></div>
       </div>
-
-      <div class="price-grid">
-        <div class="field">
-          <label for="entryPrice">Entry価格</label>
-          <div class="input-wrap">
-            <input id="entryPrice" inputmode="decimal" autocomplete="off" placeholder="例 3400.0">
-            <button type="button" class="clear-btn" data-clear="entryPrice" aria-label="Entry価格を消去">×</button>
-          </div>
-        </div>
-
-        <div class="field">
-          <label for="slPrice">Stop Loss価格</label>
-          <div class="input-wrap">
-            <input id="slPrice" inputmode="decimal" autocomplete="off" placeholder="例 3395.0">
-            <button type="button" class="clear-btn" data-clear="slPrice" aria-label="Stop Loss価格を消去">×</button>
-          </div>
-        </div>
+      <div class="metrics">
+        <div><span>1枚の利益</span><b id="rewardOne">—</b></div>
+        <div><span>TP幅</span><b id="tpDistance">—</b></div>
+        <div><span>方向</span><b id="direction">—</b></div>
       </div>
-
-      <div class="result-panel" id="resultPanel">
-        <div class="result-label">1 CONTRACT RISK</div>
-        <div class="result-main">
-          <span class="currency">$</span>
-          <span id="riskValue">—</span>
-        </div>
-        <p id="resultHint">価格を入力すると自動で計算します</p>
-
-        <div class="metrics">
-          <div class="metric">
-            <span>SL幅</span>
-            <strong id="pointDistance">—</strong>
-          </div>
-          <div class="metric">
-            <span>Ticks</span>
-            <strong id="tickDistance">—</strong>
-          </div>
-          <div class="metric">
-            <span>1 point</span>
-            <strong id="pointValue">—</strong>
-          </div>
-        </div>
-      </div>
-
-      <button class="reset-button" id="resetButton" type="button">入力をリセット</button>
     </section>
 
-    <section class="info-card">
-      <div>
-        <span class="info-symbol" id="infoSymbol">MGC</span>
-        <p id="infoDescription">1 point = $10.00 / 1 tick = $1.00</p>
-      </div>
-      <span class="local-badge">LOCAL</span>
-    </section>
+    <button id="resetButton" class="reset">入力をリセット</button>
+  </section>
 
-    <footer>
-      <p>手数料・スリッページは含みません。</p>
-    </footer>
-  </main>
-
-  <script src="./app.js"></script>
+  <section class="info">
+    <b id="infoSymbol">MGC</b>
+    <span id="infoDescription">1 point = $10.00 / 1 tick = $1.00</span>
+    <em>LOCAL</em>
+  </section>
+  <footer>手数料・スリッページは含みません。</footer>
+</main>
+<script src="./app.js"></script>
 </body>
 </html>

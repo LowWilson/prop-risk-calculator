@@ -1,19 +1,11 @@
-# Risk One
+# Risk One v2
 
-MGC・MNQ・MYMのEntry価格とStop Loss価格を入力し、1枚あたりの想定損失額を計算するPWAです。
+Entry、Stop Loss、枚数、目標RR、Take Profit価格を入力できます。
 
-## 起動
-PWA・オフライン機能を使うには、HTTPS環境またはlocalhostで開いてください。
+- RRを入力するとTP価格を自動計算
+- TP価格を直接入力するとRRを自動計算
+- 1枚あたりと合計の損失・利益を表示
+- MGC / MNQ / MYM対応
+- オフライン動作対応
 
-例:
-python -m http.server 8080
-
-その後:
-http://localhost:8080
-
-## 対応銘柄
-- MGC: 1 point = $10.00 / tick 0.1 = $1.00
-- MNQ: 1 point = $2.00 / tick 0.25 = $0.50
-- MYM: 1 point = $0.50 / tick 1 = $0.50
-
-手数料・スリッページは計算に含みません。
+公開時は全ファイルを同じ階層へアップロードしてください。

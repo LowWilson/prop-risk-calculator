@@ -1,7 +1,7 @@
 {
-  "name": "Risk One - Futures Risk Calculator",
+  "name": "Risk One - Futures Risk & Reward Calculator",
   "short_name": "Risk One",
-  "description": "MGC・MNQ・MYMの1枚あたりのストップロス金額を計算",
+  "description": "MGC・MNQ・MYMのリスク、利益、RR、TP価格を計算",
   "start_url": "./",
   "display": "standalone",
   "background_color": "#050505",
