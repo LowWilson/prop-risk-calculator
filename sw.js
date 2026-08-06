@@ -1,4 +1,4 @@
-const CACHE_NAME = "risk-one-v1";
+const CACHE_NAME = "risk-one-v2";
 const APP_SHELL = [
   "./",
   "./index.html",
