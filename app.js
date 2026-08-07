@@ -1,37 +1,4 @@
-const CONTRACTS = {
-  MGC: {
-    tick: .1,
-    tickValue: 1,
-    point: 10,
-    decimals: 1,
-    entry: "例 3400.0",
-    sl: "例 3395.0"
-  },
-  MNQ: {
-    tick: .25,
-    tickValue: .5,
-    point: 2,
-    decimals: 2,
-    entry: "例 23100.00",
-    sl: "例 23050.00"
-  },
-  MYM: {
-    tick: 1,
-    tickValue: .5,
-    point: .5,
-    decimals: 0,
-    entry: "例 44500",
-    sl: "例 44450"
-  },
-  MBT: {
-    tick: 5,
-    tickValue: .5,
-    point: .1,
-    decimals: 0,
-    entry: "例 117000",
-    sl: "例 116500"
-  }
-};
+const CONTRACTS={MGC:{tick:.1,tickValue:1,point:10,decimals:1,entry:"例 3400.0",sl:"例 3395.0"},MNQ:{tick:.25,tickValue:.5,point:2,decimals:2,entry:"例 23100.00",sl:"例 23050.00"},MYM:{tick:1,tickValue:.5,point:.5,decimals:0,entry:"例 44500",sl:"例 44450"}};
 const $=id=>document.getElementById(id);
 const entry=$("entryPrice"),sl=$("slPrice"),tp=$("tpPrice"),qty=$("contracts"),rr=$("rrTarget");
 let symbol=localStorage.getItem("riskOneSymbol")||"MGC",lastEdited="rr",updating=false;
