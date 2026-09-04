@@ -1,7 +1,21 @@
 const CONTRACTS={MGC:{tick:.1,tickValue:1,point:10,decimals:1,entry:"例 3400.0",sl:"例 3395.0"},MNQ:{tick:.25,tickValue:.5,point:2,decimals:2,entry:"例 23100.00",sl:"例 23050.00"},MYM:{tick:1,tickValue:.5,point:.5,decimals:0,entry:"例 44500",sl:"例 44450"}};
 const $=id=>document.getElementById(id);
 const entry=$("entryPrice"),sl=$("slPrice"),tp=$("tpPrice"),qty=$("contracts"),rr=$("rrTarget");
+const STORAGE_KEY="riskOneInputs";
 let symbol=localStorage.getItem("riskOneSymbol")||"MGC",lastEdited="rr",updating=false;
+function saveInputs(){localStorage.setItem(STORAGE_KEY,JSON.stringify({entry:entry.value,sl:sl.value,tp:tp.value,qty:qty.value,rr:rr.value,lastEdited}))}
+function restoreInputs(){
+ try{
+  const saved=JSON.parse(localStorage.getItem(STORAGE_KEY));
+  if(!saved||typeof saved!=="object")return;
+  entry.value=typeof saved.entry==="string"?saved.entry:"";
+  sl.value=typeof saved.sl==="string"?saved.sl:"";
+  tp.value=typeof saved.tp==="string"?saved.tp:"";
+  qty.value=typeof saved.qty==="string"?saved.qty:"1";
+  rr.value=typeof saved.rr==="string"?saved.rr:"";
+  lastEdited=saved.lastEdited==="tp"?"tp":"rr";
+ }catch{localStorage.removeItem(STORAGE_KEY)}
+}
 const num=v=>{const s=String(v).replace(/,/g,"").trim();return s===""?null:Number.isFinite(Number(s))?Number(s):null};
 const money=v=>v.toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2});
 const compact=(v,d=2)=>v.toLocaleString("en-US",{maximumFractionDigits:d});
@@ -23,12 +37,12 @@ function calculate(){
  $("rewardValue").textContent="$"+money(totalReward);$("rewardOne").textContent="$"+money(rewardOne);$("tpDistance").textContent=compact(rewardDist,4)+" pt";$("actualRr").textContent="1:"+compact(actual,2);
  if(lastEdited==="tp"){updating=true;rr.value=compact(actual,2);updating=false}
 }
-function setSymbol(s){symbol=s;localStorage.setItem("riskOneSymbol",s);const c=CONTRACTS[s];document.querySelectorAll(".symbol").forEach(b=>b.classList.toggle("active",b.dataset.symbol===s));entry.placeholder=c.entry;sl.placeholder=c.sl;$("infoSymbol").textContent=s;$("infoDescription").textContent=`1 point = $${c.point.toFixed(2)} / 1 tick = $${c.tickValue.toFixed(2)}`;calculate()}
+function setSymbol(s){symbol=s;localStorage.setItem("riskOneSymbol",s);const c=CONTRACTS[s];document.querySelectorAll(".symbol").forEach(b=>b.classList.toggle("active",b.dataset.symbol===s));entry.placeholder=c.entry;sl.placeholder=c.sl;$("infoSymbol").textContent=s;$("infoDescription").textContent=`1 point = $${c.point.toFixed(2)} / 1 tick = $${c.tickValue.toFixed(2)}`;calculate();saveInputs()}
 document.querySelectorAll(".symbol").forEach(b=>b.onclick=()=>setSymbol(b.dataset.symbol));
-[entry,sl,qty].forEach(i=>i.addEventListener("input",calculate));
-rr.addEventListener("input",()=>{lastEdited="rr";calculate()});
-tp.addEventListener("input",()=>{lastEdited="tp";calculate()});
-$("resetButton").onclick=()=>{entry.value="";sl.value="";tp.value="";rr.value="";qty.value="1";lastEdited="rr";calculate();entry.focus()};
+[entry,sl,qty].forEach(i=>i.addEventListener("input",()=>{calculate();saveInputs()}));
+rr.addEventListener("input",()=>{lastEdited="rr";calculate();saveInputs()});
+tp.addEventListener("input",()=>{lastEdited="tp";calculate();saveInputs()});
+$("resetButton").onclick=()=>{entry.value="";sl.value="";tp.value="";rr.value="";qty.value="1";lastEdited="rr";calculate();saveInputs();entry.focus()};
 function online(){const on=navigator.onLine;$("offlineStatus").classList.toggle("offline",!on);$("statusText").textContent=on?"ONLINE":"OFFLINE"}
-addEventListener("online",online);addEventListener("offline",online);setSymbol(symbol);online();
+addEventListener("online",online);addEventListener("offline",online);restoreInputs();setSymbol(symbol);online();
 if("serviceWorker"in navigator)addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").catch(console.warn));
