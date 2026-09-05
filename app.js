@@ -17,7 +17,15 @@ function restoreInputs(){
  rr.value=typeof saved.rr==="string"?saved.rr:"";
  lastEdited=saved.lastEdited==="tp"?"tp":"rr";
 }
-const num=v=>{const s=String(v).replace(/,/g,"").trim();return s===""?null:Number.isFinite(Number(s))?Number(s):null};
+const num=v=>{
+ const s=String(v)
+  .replace(/[０-９]/g,c=>String.fromCharCode(c.charCodeAt(0)-0xFEE0))
+  .replace(/[．。]/g,".")
+  .replace(/[，、,]/g,"")
+  .replace(/[－−ー]/g,"-")
+  .trim();
+ return s===""?null:Number.isFinite(Number(s))?Number(s):null;
+};
 const money=v=>v.toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2});
 const compact=(v,d=2)=>v.toLocaleString("en-US",{maximumFractionDigits:d});
 function clearResults(msg="EntryとStop Lossを入力してください"){
