@@ -17,6 +17,30 @@ function restoreInputs(){
  rr.value=typeof saved.rr==="string"?saved.rr:"";
  lastEdited=saved.lastEdited==="tp"?"tp":"rr";
 }
+const MARKET_KEY="riskOneVisibleMarkets";
+function loadVisibleMarkets(){
+ try{
+  const saved=JSON.parse(localStorage.getItem(MARKET_KEY));
+  const valid=Array.isArray(saved)?Object.keys(CONTRACTS).filter(s=>saved.includes(s)):[];
+  return valid.length?valid:Object.keys(CONTRACTS);
+ }catch{return Object.keys(CONTRACTS)}
+}
+let visibleMarkets=loadVisibleMarkets();
+if(!visibleMarkets.includes(symbol))symbol=visibleMarkets[0];
+function renderMarkets(){
+ document.querySelectorAll(".symbol").forEach(b=>{b.hidden=!visibleMarkets.includes(b.dataset.symbol)});
+ document.querySelectorAll("[data-market]").forEach(input=>{input.checked=visibleMarkets.includes(input.dataset.market)});
+}
+document.querySelectorAll("[data-market]").forEach(input=>input.addEventListener("change",()=>{
+ const next=Array.from(document.querySelectorAll("[data-market]")).filter(i=>i.checked).map(i=>i.dataset.market);
+ if(!next.length){input.checked=true;$("marketHint").textContent="最低1銘柄は表示してください。";return}
+ visibleMarkets=next;
+ localStorage.setItem(MARKET_KEY,JSON.stringify(visibleMarkets));
+ if(!visibleMarkets.includes(symbol))setSymbol(visibleMarkets[0]);
+ renderMarkets();
+ $("marketHint").textContent="表示銘柄を保存しました。";
+}));
+renderMarkets();
 const num=v=>{
  const s=String(v)
   .replace(/[０-９]/g,c=>String.fromCharCode(c.charCodeAt(0)-0xFEE0))

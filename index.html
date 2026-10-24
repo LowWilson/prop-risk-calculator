@@ -21,6 +21,16 @@
 
   <section class="card">
     <label class="section-label">銘柄</label>
+    <details class="market-settings">
+      <summary>表示銘柄を選択</summary>
+      <fieldset>
+        <legend>表示する銘柄</legend>
+        <label><input type="checkbox" data-market="MGC" checked> MGC · Micro Gold</label>
+        <label><input type="checkbox" data-market="MNQ" checked> MNQ · Micro Nasdaq</label>
+        <label><input type="checkbox" data-market="MYM" checked> MYM · US30 / Micro Dow</label>
+      </fieldset>
+      <p id="marketHint" role="status" aria-live="polite">最低1銘柄を選択してください。選択は自動保存されます。</p>
+    </details>
     <div class="symbols">
       <button class="symbol active" data-symbol="MGC"><b>MGC</b><small>Micro Gold</small></button>
       <button class="symbol" data-symbol="MNQ"><b>MNQ</b><small>Micro Nasdaq</small></button>
