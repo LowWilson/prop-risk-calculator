@@ -64,7 +64,7 @@ function renderMode(){
  $("tpLabel").textContent=points?"利確幅（pt）":"Take Profit価格";
  entry.placeholder=c.entry;sl.placeholder=points?"例 50":c.sl;
  tp.placeholder=points?"例 100 またはRR入力で自動計算":"RR入力で自動計算";
- $("modeHint").textContent=points?"価格差をptで入力します（ticksではありません）。例：100pt × 1ptの金額 × 枚数。":"EntryとStop Lossの価格から計算します。";
+ $("modeHint").textContent=points?"損切り幅・利確幅は片方だけでも計算できます。両方入力するとRRも表示します。単位はpt（ticksではありません）。":"EntryとStop Lossの価格から計算します。";
  document.querySelectorAll('[name="inputMode"]').forEach(i=>{i.checked=i.value===inputMode});
 }
 document.querySelectorAll('[name="inputMode"]').forEach(i=>i.addEventListener("change",()=>{
@@ -75,29 +75,34 @@ document.querySelectorAll('[name="inputMode"]').forEach(i=>i.addEventListener("c
 function calculatePoints(){
  const c=CONTRACTS[symbol],distance=num(sl.value),q=Math.floor(num(qty.value)??1),r=num(rr.value);
  let target=num(tp.value);
- if(distance===null){clearResults("損切り幅（pt）を入力してください");return}
- if(distance<=0||q<1){clearResults("損切り幅は0より大きい値、枚数は1以上を入力してください");return}
+ clearResults("損切り幅または利確幅（pt）を入力してください");
+ if(q<1){$("resultHint").textContent="枚数は1以上を入力してください";return}
+ const hasRisk=distance!==null&&distance>0;
  if(lastEdited==="rr"){
-  target=r!==null&&r>0?Number((distance*r).toFixed(8)):null;
+  target=hasRisk&&r!==null&&r>0?Number((distance*r).toFixed(8)):null;
   tp.value=target===null?"":String(target);
  }
- $("riskValue").textContent=money(distance*c.point*q);
- $("riskOne").textContent="$"+money(distance*c.point);
- $("slDistance").textContent=compact(distance,4)+" pt";
- $("ticks").textContent=compact(distance/c.tick,2);
- $("direction").textContent="—";
- $("resultHint").textContent=q+"枚・ポイント幅で計算";
- if(target===null||target<=0){
-  $("rewardValue").textContent="$—";$("rewardOne").textContent="—";$("tpDistance").textContent="—";$("actualRr").textContent="—";
-  if(target!==null)$("resultHint").textContent="利確幅は0より大きい値を入力してください";
-  return;
+ const hasReward=target!==null&&target>0;
+ if(hasRisk){
+  $("riskValue").textContent=money(distance*c.point*q);
+  $("riskOne").textContent="$"+money(distance*c.point);
+  $("slDistance").textContent=compact(distance,4)+" pt";
+  $("ticks").textContent=compact(distance/c.tick,2);
  }
- $("rewardValue").textContent="$"+money(target*c.point*q);
- $("rewardOne").textContent="$"+money(target*c.point);
- $("tpDistance").textContent=compact(target,4)+" pt";
- $("actualRr").textContent="1:"+compact(target/distance,2);
- if(lastEdited==="tp")rr.value=compact(target/distance,2);
+ if(hasReward){
+  $("rewardValue").textContent="$"+money(target*c.point*q);
+  $("rewardOne").textContent="$"+money(target*c.point);
+  $("tpDistance").textContent=compact(target,4)+" pt";
+ }
+ if(hasRisk&&hasReward){
+  $("actualRr").textContent="1:"+compact(target/distance,2);
+  if(lastEdited==="tp")rr.value=compact(target/distance,2);
+ }else if(lastEdited==="tp")rr.value="";
+ if(hasRisk||hasReward)$("resultHint").textContent=q+"枚・ポイント幅で計算";
+ if(distance!==null&&!hasRisk)$("resultHint").textContent="損切り幅は0より大きい値を入力してください";
+ if(target!==null&&!hasReward)$("resultHint").textContent="利確幅は0より大きい値を入力してください";
 }
+
 function calculate(){
  if(updating)return;
  if(inputMode==="points"){calculatePoints();return;}
