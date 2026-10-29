@@ -13,3 +13,5 @@ button,input{font:inherit}.shell{width:min(720px,calc(100% - 28px));margin:auto;
 .market-settings input{width:18px;height:18px;min-height:0;margin:0;padding:0;accent-color:var(--lime)}
 .market-settings p{font-size:11px;line-height:1.6}
 .market-settings summary:focus-visible{outline:2px solid var(--lime);outline-offset:3px}
+
+.input-mode{display:flex;flex-wrap:wrap;gap:12px;margin:24px 0 0;padding:14px;border:1px solid var(--border);border-radius:15px;font-size:12px}.input-mode legend{color:var(--muted);padding:0 6px}.input-mode label{display:flex;align-items:center;gap:8px;cursor:pointer}.input-mode input{width:18px;height:18px;min-height:0;padding:0;margin:0;accent-color:var(--lime)}.mode-hint{color:var(--muted);font-size:11px;line-height:1.6}.grid [hidden]{display:none}

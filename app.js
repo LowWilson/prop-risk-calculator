@@ -3,13 +3,15 @@ const $=id=>document.getElementById(id);
 const entry=$("entryPrice"),sl=$("slPrice"),tp=$("tpPrice"),qty=$("contracts"),rr=$("rrTarget");
 const STORAGE_KEY="riskOneInputsBySymbol";
 let symbol=localStorage.getItem("riskOneSymbol")||"MGC",lastEdited="rr",updating=false;
+let inputMode=localStorage.getItem("riskOneInputMode")==="points"?"points":"price";
+const inputKey=()=>inputMode==="price"?symbol:symbol+":points";
 function savedInputs(){
  try{const saved=JSON.parse(localStorage.getItem(STORAGE_KEY));return saved&&typeof saved==="object"?saved:{}}
  catch{localStorage.removeItem(STORAGE_KEY);return{}}
 }
-function saveInputs(){const saved=savedInputs();saved[symbol]={entry:entry.value,sl:sl.value,tp:tp.value,qty:qty.value,rr:rr.value,lastEdited};localStorage.setItem(STORAGE_KEY,JSON.stringify(saved))}
+function saveInputs(){const saved=savedInputs();saved[inputKey()]={entry:entry.value,sl:sl.value,tp:tp.value,qty:qty.value,rr:rr.value,lastEdited};localStorage.setItem(STORAGE_KEY,JSON.stringify(saved))}
 function restoreInputs(){
- const saved=savedInputs()[symbol]||{};
+ const saved=savedInputs()[inputKey()]||{};
  entry.value=typeof saved.entry==="string"?saved.entry:"";
  sl.value=typeof saved.sl==="string"?saved.sl:"";
  tp.value=typeof saved.tp==="string"?saved.tp:"";
@@ -55,8 +57,50 @@ const compact=(v,d=2)=>v.toLocaleString("en-US",{maximumFractionDigits:d});
 function clearResults(msg="EntryとStop Lossを入力してください"){
  $("riskValue").textContent="—";$("riskOne").textContent="—";$("slDistance").textContent="—";$("ticks").textContent="—";$("rewardValue").textContent="$—";$("rewardOne").textContent="—";$("tpDistance").textContent="—";$("actualRr").textContent="—";$("direction").textContent="—";$("resultHint").textContent=msg;
 }
+function renderMode(){
+ const points=inputMode==="points",c=CONTRACTS[symbol];
+ $("entryField").hidden=points;
+ $("slLabel").textContent=points?"損切り幅（pt）":"Stop Loss価格";
+ $("tpLabel").textContent=points?"利確幅（pt）":"Take Profit価格";
+ entry.placeholder=c.entry;sl.placeholder=points?"例 50":c.sl;
+ tp.placeholder=points?"例 100 またはRR入力で自動計算":"RR入力で自動計算";
+ $("modeHint").textContent=points?"価格差をptで入力します（ticksではありません）。例：100pt × 1ptの金額 × 枚数。":"EntryとStop Lossの価格から計算します。";
+ document.querySelectorAll('[name="inputMode"]').forEach(i=>{i.checked=i.value===inputMode});
+}
+document.querySelectorAll('[name="inputMode"]').forEach(i=>i.addEventListener("change",()=>{
+ if(!i.checked||i.value===inputMode)return;
+ saveInputs();inputMode=i.value;localStorage.setItem("riskOneInputMode",inputMode);
+ restoreInputs();renderMode();calculate();
+}));
+function calculatePoints(){
+ const c=CONTRACTS[symbol],distance=num(sl.value),q=Math.floor(num(qty.value)??1),r=num(rr.value);
+ let target=num(tp.value);
+ if(distance===null){clearResults("損切り幅（pt）を入力してください");return}
+ if(distance<=0||q<1){clearResults("損切り幅は0より大きい値、枚数は1以上を入力してください");return}
+ if(lastEdited==="rr"){
+  target=r!==null&&r>0?Number((distance*r).toFixed(8)):null;
+  tp.value=target===null?"":String(target);
+ }
+ $("riskValue").textContent=money(distance*c.point*q);
+ $("riskOne").textContent="$"+money(distance*c.point);
+ $("slDistance").textContent=compact(distance,4)+" pt";
+ $("ticks").textContent=compact(distance/c.tick,2);
+ $("direction").textContent="—";
+ $("resultHint").textContent=q+"枚・ポイント幅で計算";
+ if(target===null||target<=0){
+  $("rewardValue").textContent="$—";$("rewardOne").textContent="—";$("tpDistance").textContent="—";$("actualRr").textContent="—";
+  if(target!==null)$("resultHint").textContent="利確幅は0より大きい値を入力してください";
+  return;
+ }
+ $("rewardValue").textContent="$"+money(target*c.point*q);
+ $("rewardOne").textContent="$"+money(target*c.point);
+ $("tpDistance").textContent=compact(target,4)+" pt";
+ $("actualRr").textContent="1:"+compact(target/distance,2);
+ if(lastEdited==="tp")rr.value=compact(target/distance,2);
+}
 function calculate(){
  if(updating)return;
+ if(inputMode==="points"){calculatePoints();return;}
  const c=CONTRACTS[symbol],e=num(entry.value),s=num(sl.value),q=Math.floor(num(qty.value)??1),r=num(rr.value);let t=num(tp.value);
  if(e===null||s===null){clearResults();return}
  const riskDist=Math.abs(e-s);
@@ -70,12 +114,12 @@ function calculate(){
  $("rewardValue").textContent="$"+money(totalReward);$("rewardOne").textContent="$"+money(rewardOne);$("tpDistance").textContent=compact(rewardDist,4)+" pt";$("actualRr").textContent="1:"+compact(actual,2);
  if(lastEdited==="tp"){updating=true;rr.value=compact(actual,2);updating=false}
 }
-function setSymbol(s){if(s!==symbol)saveInputs();symbol=s;localStorage.setItem("riskOneSymbol",s);restoreInputs();const c=CONTRACTS[s];document.querySelectorAll(".symbol").forEach(b=>b.classList.toggle("active",b.dataset.symbol===s));entry.placeholder=c.entry;sl.placeholder=c.sl;$("infoSymbol").textContent=s;$("infoDescription").textContent=`1 point = $${c.point.toFixed(2)} / 1 tick = $${c.tickValue.toFixed(2)}`;calculate()}
+function setSymbol(s){if(s!==symbol)saveInputs();symbol=s;localStorage.setItem("riskOneSymbol",s);restoreInputs();const c=CONTRACTS[s];document.querySelectorAll(".symbol").forEach(b=>b.classList.toggle("active",b.dataset.symbol===s));renderMode();$("infoSymbol").textContent=s;$("infoDescription").textContent=`1 point = $${c.point.toFixed(2)} / 1 tick = $${c.tickValue.toFixed(2)}`;calculate()}
 document.querySelectorAll(".symbol").forEach(b=>b.onclick=()=>setSymbol(b.dataset.symbol));
 [entry,sl,qty].forEach(i=>i.addEventListener("input",()=>{calculate();saveInputs()}));
 rr.addEventListener("input",()=>{lastEdited="rr";calculate();saveInputs()});
 tp.addEventListener("input",()=>{lastEdited="tp";calculate();saveInputs()});
-$("resetButton").onclick=()=>{entry.value="";sl.value="";tp.value="";rr.value="";qty.value="1";lastEdited="rr";calculate();saveInputs();entry.focus()};
+$("resetButton").onclick=()=>{entry.value="";sl.value="";tp.value="";rr.value="";qty.value="1";lastEdited="rr";calculate();saveInputs();(inputMode==="points"?sl:entry).focus()};
 function online(){const on=navigator.onLine;$("offlineStatus").classList.toggle("offline",!on);$("statusText").textContent=on?"ONLINE":"OFFLINE"}
 addEventListener("online",online);addEventListener("offline",online);setSymbol(symbol);online();
 if("serviceWorker"in navigator)addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").catch(console.warn));

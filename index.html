@@ -37,12 +37,18 @@
       <button class="symbol" data-symbol="MYM"><b>MYM</b><small>US30 / Micro Dow</small></button>
     </div>
 
+    <fieldset class="input-mode">
+      <legend>入力モード</legend>
+      <label><input type="radio" name="inputMode" value="price" checked>価格入力</label>
+      <label><input type="radio" name="inputMode" value="points">ポイント幅入力</label>
+    </fieldset>
+    <p id="modeHint" class="mode-hint">EntryとStop Lossの価格から計算します。</p>
     <div class="grid">
-      <label>Entry価格<input id="entryPrice" inputmode="decimal" placeholder="例 3400.0"></label>
-      <label>Stop Loss価格<input id="slPrice" inputmode="decimal" placeholder="例 3395.0"></label>
+      <label id="entryField">Entry価格<input id="entryPrice" inputmode="decimal" placeholder="例 3400.0"></label>
+      <label><span id="slLabel">Stop Loss価格</span><input id="slPrice" inputmode="decimal" placeholder="例 3395.0"></label>
       <label>枚数<input id="contracts" inputmode="numeric" value="1" placeholder="例 2"></label>
       <label>目標RR<input id="rrTarget" inputmode="decimal" placeholder="例 2"></label>
-      <label class="wide">Take Profit価格<input id="tpPrice" inputmode="decimal" placeholder="RR入力で自動計算"></label>
+      <label class="wide"><span id="tpLabel">Take Profit価格</span><input id="tpPrice" inputmode="decimal" placeholder="RR入力で自動計算"></label>
     </div>
 
     <section class="risk result">
