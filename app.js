@@ -128,3 +128,25 @@ $("resetButton").onclick=()=>{entry.value="";sl.value="";tp.value="";rr.value=""
 function online(){const on=navigator.onLine;$("offlineStatus").classList.toggle("offline",!on);$("statusText").textContent=on?"ONLINE":"OFFLINE"}
 addEventListener("online",online);addEventListener("offline",online);setSymbol(symbol);online();
 if("serviceWorker"in navigator)addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").catch(console.warn));
+
+// Fit the complete calculator inside the mobile viewport without scrolling.
+{
+ const shell=document.querySelector('.shell');
+ const mobile=matchMedia('(max-width:640px)');
+ let frame=0;
+ function fitMobile(){
+  frame=0;
+  if(!mobile.matches){shell.style.transform='';return}
+  const availableHeight=window.visualViewport?window.visualViewport.height:window.innerHeight;
+  const naturalHeight=shell.offsetHeight;
+  const scale=Math.min(1,Math.max(0,availableHeight-2)/Math.max(1,naturalHeight));
+  shell.style.transform=`scale(${scale})`;
+ }
+ function scheduleFit(){if(!frame)frame=requestAnimationFrame(fitMobile)}
+ new ResizeObserver(scheduleFit).observe(shell);
+ addEventListener('resize',scheduleFit);
+ mobile.addEventListener('change',scheduleFit);
+ if(window.visualViewport)window.visualViewport.addEventListener('resize',scheduleFit);
+ if(document.fonts)document.fonts.ready.then(scheduleFit);
+ scheduleFit();
+}

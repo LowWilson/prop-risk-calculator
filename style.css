@@ -50,3 +50,39 @@ button,input{font:inherit}.shell{width:min(720px,calc(100% - 28px));margin:auto;
 @media(max-height:700px) and (max-width:640px){
  .shell{padding-top:5px}.topbar{margin-bottom:5px}h1{font-size:19px}.card{padding:9px;gap:7px}.symbol{min-height:38px;padding:5px 3px}.symbol small{font-size:8px}.mode-hint{margin:3px 0}.input-mode{margin-top:6px;padding:1px 8px}.grid{gap:5px}.grid input{height:36px;min-height:36px}.result{padding:8px}.result p{min-height:22px}.info{padding:3px 8px}footer{padding-top:3px}
 }
+
+/* Keep input and result proportions consistent in both modes. */
+.shell{max-width:980px}
+.card{align-items:start;gap:12px 20px}
+.results-panel{align-content:start;grid-auto-rows:1fr}
+.grid:has(#entryField[hidden]) .wide{grid-column:auto;order:2}
+.grid:has(#entryField[hidden]) label:has(#slPrice){order:1}
+.grid:has(#entryField[hidden]) label:has(#contracts){order:3}
+.grid:has(#entryField[hidden]) label:has(#rrTarget){order:4}
+.result{position:relative;display:grid;grid-template-rows:14px minmax(42px,auto) minmax(18px,auto) auto;gap:6px;padding:14px}
+.result>.result-label{grid-row:1}
+.money{grid-row:2;display:flex;align-items:baseline;gap:3px;font-size:18px;margin:0;min-width:0}
+.money strong,.reward-head>div>strong{font-size:36px;line-height:1.15;letter-spacing:-.045em;margin:0;font-variant-numeric:tabular-nums}
+.money strong{margin-left:0}
+.result p{grid-row:3;margin:0;min-height:0;align-self:center;font-size:10px}
+.result .metrics{grid-row:4;margin:0}
+.reward-head,.reward-head>div:first-child{display:contents}
+.reward-head .result-label{grid-row:1;padding-right:65px}
+.reward-head>div>strong{grid-row:2;display:block;align-self:start;min-width:0}
+.reward-head .rr{position:absolute;right:14px;top:12px;display:flex;gap:5px;align-items:center;min-width:0;margin:0;padding:0;border:0}
+.rr b{font-size:13px;margin:0}.rr span{font-size:9px}
+.mode-hint{min-height:28px}
+@media(max-width:640px){
+ .card{gap:9px}.results-panel{gap:8px}
+ .result{padding:10px 8px;grid-template-rows:12px minmax(32px,auto) minmax(26px,auto) auto;gap:5px}
+ .money{font-size:14px;gap:2px}.money strong,.reward-head>div>strong{font-size:clamp(22px,6.2vw,32px);margin:0}
+ .reward-head .rr{top:auto;right:8px;left:8px;bottom:auto;position:static;grid-row:3;align-self:center;justify-content:flex-start;padding:0;margin:0}
+ .reward-head .result-label{padding-right:0}.result p{font-size:9px}.rr b{font-size:12px}
+ .mode-hint{min-height:0}.result .metrics{margin:0}
+}
+
+@media(max-width:640px){
+ html,body{height:100%;height:100dvh;overflow:hidden;overscroll-behavior:none}
+ .shell{transform-origin:top center}
+ .market-settings[open]{max-width:100%}
+}
