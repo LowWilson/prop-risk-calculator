@@ -107,3 +107,6 @@ button,input{font:inherit}.shell{width:min(720px,calc(100% - 28px));margin:auto;
 @media(min-width:641px) and (max-height:720px){
  .shell{padding:12px;gap:7px}.card{padding:14px;gap:10px 18px}.symbol{min-height:44px}.input-mode{margin-top:10px;padding:5px 10px}.mode-hint{margin:5px 0}.grid{gap:8px;margin-top:6px}.grid input{height:42px}.result{padding:14px;gap:7px}.money strong,.reward-head>div>strong{font-size:clamp(32px,4vw,56px)}.metrics div{padding:7px}.result p{font-size:10px}.reset{min-height:34px}
 }
+
+html,body{height:100%;height:100dvh;overflow:hidden;overscroll-behavior:none}
+.shell{transform-origin:top center}

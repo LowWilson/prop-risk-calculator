@@ -129,17 +129,17 @@ function online(){const on=navigator.onLine;$("offlineStatus").classList.toggle(
 addEventListener("online",online);addEventListener("offline",online);setSymbol(symbol);online();
 if("serviceWorker"in navigator)addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").catch(console.warn));
 
-// Fit the complete calculator inside the mobile viewport without scrolling.
+// Fit the complete calculator inside the viewport without scrolling.
 {
  const shell=document.querySelector('.shell');
  const mobile=matchMedia('(max-width:640px)');
  let frame=0;
  function fitMobile(){
   frame=0;
-  if(!mobile.matches){shell.style.transform='';return}
   const availableHeight=window.visualViewport?window.visualViewport.height:window.innerHeight;
-  const naturalHeight=shell.offsetHeight;
-  const scale=Math.min(1,Math.max(0,availableHeight-2)/Math.max(1,naturalHeight));
+  const naturalHeight=Math.max(shell.offsetHeight,shell.scrollHeight);
+  const availableWidth=window.visualViewport?window.visualViewport.width:window.innerWidth;
+  const scale=Math.min(1,Math.max(0,availableHeight-2)/Math.max(1,naturalHeight),availableWidth/Math.max(1,shell.scrollWidth));
   shell.style.transform=`scale(${scale})`;
  }
  function scheduleFit(){if(!frame)frame=requestAnimationFrame(fitMobile)}
