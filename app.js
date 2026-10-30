@@ -1,4 +1,4 @@
-const CONTRACTS={MGC:{tick:.1,tickValue:1,point:10,decimals:1,entry:"例 3400.0",sl:"例 3395.0"},MNQ:{tick:.25,tickValue:.5,point:2,decimals:2,entry:"例 23100.00",sl:"例 23050.00"},MYM:{tick:1,tickValue:.5,point:.5,decimals:0,entry:"例 44500",sl:"例 44450"}};
+const CONTRACTS={MGC:{tick:.1,tickValue:1,point:10,decimals:1},MNQ:{tick:.25,tickValue:.5,point:2,decimals:2},MYM:{tick:1,tickValue:.5,point:.5,decimals:0}};
 const $=id=>document.getElementById(id);
 const entry=$("entryPrice"),sl=$("slPrice"),tp=$("tpPrice"),qty=$("contracts"),rr=$("rrTarget");
 const STORAGE_KEY="riskOneInputsBySymbol";
@@ -62,9 +62,6 @@ function renderMode(){
  $("entryField").hidden=points;
  $("slLabel").textContent=points?"損切り幅（pt）":"Stop Loss価格";
  $("tpLabel").textContent=points?"利確幅（pt）":"Take Profit価格";
- entry.placeholder=c.entry;sl.placeholder=points?"例 50":c.sl;
- tp.placeholder=points?"例 100 またはRR入力で自動計算":"RR入力で自動計算";
- $("modeHint").textContent=points?"損切り幅・利確幅は片方だけでも計算できます。両方入力するとRRも表示します。単位はpt（ticksではありません）。":"EntryとStop Lossの価格から計算します。";
  document.querySelectorAll('[name="inputMode"]').forEach(i=>{i.checked=i.value===inputMode});
 }
 document.querySelectorAll('[name="inputMode"]').forEach(i=>i.addEventListener("change",()=>{
