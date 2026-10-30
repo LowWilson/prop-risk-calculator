@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#050505">
-  <meta name="description" content="MGC・MNQ・MYMのリスク、利益、RR、TP価格を計算">
+  <meta name="description" content="MGC・MNQ・MYMのポイント幅からリスク、利益、RRを計算">
   <title>Risk One</title>
   <link rel="manifest" href="./manifest.json">
   <link rel="icon" href="./icon.svg" type="image/svg+xml">
@@ -38,17 +38,11 @@
       <button class="symbol" data-symbol="MYM"><b>MYM</b><small>US30 / Micro Dow</small></button>
     </div>
 
-    <fieldset class="input-mode">
-      <legend>入力モード</legend>
-      <label><input type="radio" name="inputMode" value="price" checked>価格入力</label>
-      <label><input type="radio" name="inputMode" value="points">ポイント幅入力</label>
-    </fieldset>
-    <div class="grid">
-      <label id="entryField">Entry価格<input id="entryPrice" inputmode="decimal"></label>
-      <label><span id="slLabel">Stop Loss価格</span><input id="slPrice" inputmode="decimal"></label>
+    <div class="grid points-grid">
+      <label><span id="slLabel">損切り幅（pt）</span><input id="slPrice" inputmode="decimal"></label>
+      <label><span id="tpLabel">利確幅（pt）</span><input id="tpPrice" inputmode="decimal"></label>
       <label>枚数<input id="contracts" inputmode="numeric" value="1"></label>
       <label>目標RR<input id="rrTarget" inputmode="decimal"></label>
-      <label class="wide"><span id="tpLabel">Take Profit価格</span><input id="tpPrice" inputmode="decimal"></label>
     </div>
 
     </div>
@@ -56,7 +50,7 @@
     <section class="risk result">
       <span class="result-label">TOTAL RISK</span>
       <div class="money">$<strong id="riskValue">—</strong></div>
-      <p id="resultHint">EntryとStop Lossを入力してください</p>
+      <p id="resultHint">損切り幅または利確幅（pt）を入力してください</p>
       <div class="metrics">
         <div><span>1枚の損失</span><b id="riskOne">—</b></div>
         <div><span>SL幅</span><b id="slDistance">—</b></div>
@@ -72,7 +66,6 @@
       <div class="metrics">
         <div><span>1枚の利益</span><b id="rewardOne">—</b></div>
         <div><span>TP幅</span><b id="tpDistance">—</b></div>
-        <div><span>方向</span><b id="direction">—</b></div>
       </div>
     </section>
 

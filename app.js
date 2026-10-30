@@ -1,18 +1,16 @@
 const CONTRACTS={MGC:{tick:.1,tickValue:1,point:10,decimals:1},MNQ:{tick:.25,tickValue:.5,point:2,decimals:2},MYM:{tick:1,tickValue:.5,point:.5,decimals:0}};
 const $=id=>document.getElementById(id);
-const entry=$("entryPrice"),sl=$("slPrice"),tp=$("tpPrice"),qty=$("contracts"),rr=$("rrTarget");
+const sl=$("slPrice"),tp=$("tpPrice"),qty=$("contracts"),rr=$("rrTarget");
 const STORAGE_KEY="riskOneInputsBySymbol";
-let symbol=localStorage.getItem("riskOneSymbol")||"MGC",lastEdited="rr",updating=false;
-let inputMode=localStorage.getItem("riskOneInputMode")==="points"?"points":"price";
-const inputKey=()=>inputMode==="price"?symbol:symbol+":points";
+let symbol=localStorage.getItem("riskOneSymbol")||"MGC",lastEdited="rr";
+const inputKey=()=>symbol+":points";
 function savedInputs(){
  try{const saved=JSON.parse(localStorage.getItem(STORAGE_KEY));return saved&&typeof saved==="object"?saved:{}}
  catch{localStorage.removeItem(STORAGE_KEY);return{}}
 }
-function saveInputs(){const saved=savedInputs();saved[inputKey()]={entry:entry.value,sl:sl.value,tp:tp.value,qty:qty.value,rr:rr.value,lastEdited};localStorage.setItem(STORAGE_KEY,JSON.stringify(saved))}
+function saveInputs(){const saved=savedInputs();saved[inputKey()]={sl:sl.value,tp:tp.value,qty:qty.value,rr:rr.value,lastEdited};localStorage.setItem(STORAGE_KEY,JSON.stringify(saved))}
 function restoreInputs(){
  const saved=savedInputs()[inputKey()]||{};
- entry.value=typeof saved.entry==="string"?saved.entry:"";
  sl.value=typeof saved.sl==="string"?saved.sl:"";
  tp.value=typeof saved.tp==="string"?saved.tp:"";
  qty.value=typeof saved.qty==="string"?saved.qty:"1";
@@ -54,21 +52,9 @@ const num=v=>{
 };
 const money=v=>v.toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2});
 const compact=(v,d=2)=>v.toLocaleString("en-US",{maximumFractionDigits:d});
-function clearResults(msg="EntryとStop Lossを入力してください"){
- $("riskValue").textContent="—";$("riskOne").textContent="—";$("slDistance").textContent="—";$("ticks").textContent="—";$("rewardValue").textContent="$—";$("rewardOne").textContent="—";$("tpDistance").textContent="—";$("actualRr").textContent="—";$("direction").textContent="—";$("resultHint").textContent=msg;
+function clearResults(msg="損切り幅または利確幅（pt）を入力してください"){
+ $("riskValue").textContent="—";$("riskOne").textContent="—";$("slDistance").textContent="—";$("ticks").textContent="—";$("rewardValue").textContent="$—";$("rewardOne").textContent="—";$("tpDistance").textContent="—";$("actualRr").textContent="—";$("resultHint").textContent=msg;
 }
-function renderMode(){
- const points=inputMode==="points",c=CONTRACTS[symbol];
- $("entryField").hidden=points;
- $("slLabel").textContent=points?"損切り幅（pt）":"Stop Loss価格";
- $("tpLabel").textContent=points?"利確幅（pt）":"Take Profit価格";
- document.querySelectorAll('[name="inputMode"]').forEach(i=>{i.checked=i.value===inputMode});
-}
-document.querySelectorAll('[name="inputMode"]').forEach(i=>i.addEventListener("change",()=>{
- if(!i.checked||i.value===inputMode)return;
- saveInputs();inputMode=i.value;localStorage.setItem("riskOneInputMode",inputMode);
- restoreInputs();renderMode();calculate();
-}));
 function calculatePoints(){
  const c=CONTRACTS[symbol],distance=num(sl.value),q=Math.floor(num(qty.value)??1),r=num(rr.value);
  let target=num(tp.value);
@@ -100,28 +86,13 @@ function calculatePoints(){
  if(target!==null&&!hasReward)$("resultHint").textContent="利確幅は0より大きい値を入力してください";
 }
 
-function calculate(){
- if(updating)return;
- if(inputMode==="points"){calculatePoints();return;}
- const c=CONTRACTS[symbol],e=num(entry.value),s=num(sl.value),q=Math.floor(num(qty.value)??1),r=num(rr.value);let t=num(tp.value);
- if(e===null||s===null){clearResults();return}
- const riskDist=Math.abs(e-s);
- if(e<0||s<0||q<1||riskDist===0){clearResults("価格と枚数を確認してください");return}
- const isLong=s<e,direction=isLong?"LONG":"SHORT",riskOne=riskDist*c.point,totalRisk=riskOne*q;
- if(lastEdited==="rr"&&r!==null&&r>0){t=isLong?e+riskDist*r:e-riskDist*r;updating=true;tp.value=t.toFixed(c.decimals);updating=false}
- $("riskValue").textContent=money(totalRisk);$("riskOne").textContent="$"+money(riskOne);$("slDistance").textContent=compact(riskDist,4)+" pt";$("ticks").textContent=compact(riskDist/c.tick,2);$("direction").textContent=direction;$("resultHint").textContent=q+"枚・"+direction+"想定";
- if(t===null){$("rewardValue").textContent="$—";$("rewardOne").textContent="—";$("tpDistance").textContent="—";$("actualRr").textContent="—";return}
- if((isLong&&t<=e)||(!isLong&&t>=e)){$("resultHint").textContent=direction+"のTP位置を確認してください";$("rewardValue").textContent="$—";$("rewardOne").textContent="—";$("tpDistance").textContent="—";$("actualRr").textContent="—";return}
- const rewardDist=Math.abs(t-e),rewardOne=rewardDist*c.point,totalReward=rewardOne*q,actual=rewardDist/riskDist;
- $("rewardValue").textContent="$"+money(totalReward);$("rewardOne").textContent="$"+money(rewardOne);$("tpDistance").textContent=compact(rewardDist,4)+" pt";$("actualRr").textContent="1:"+compact(actual,2);
- if(lastEdited==="tp"){updating=true;rr.value=compact(actual,2);updating=false}
-}
-function setSymbol(s){if(s!==symbol)saveInputs();symbol=s;localStorage.setItem("riskOneSymbol",s);restoreInputs();const c=CONTRACTS[s];document.querySelectorAll(".symbol").forEach(b=>b.classList.toggle("active",b.dataset.symbol===s));renderMode();$("infoSymbol").textContent=s;$("infoDescription").textContent=`1 point = $${c.point.toFixed(2)} / 1 tick = $${c.tickValue.toFixed(2)}`;calculate()}
+function calculate(){calculatePoints()}
+function setSymbol(s){if(s!==symbol)saveInputs();symbol=s;localStorage.setItem("riskOneSymbol",s);restoreInputs();const c=CONTRACTS[s];document.querySelectorAll(".symbol").forEach(b=>b.classList.toggle("active",b.dataset.symbol===s));$("infoSymbol").textContent=s;$("infoDescription").textContent=`1 point = $${c.point.toFixed(2)} / 1 tick = $${c.tickValue.toFixed(2)}`;calculate()}
 document.querySelectorAll(".symbol").forEach(b=>b.onclick=()=>setSymbol(b.dataset.symbol));
-[entry,sl,qty].forEach(i=>i.addEventListener("input",()=>{calculate();saveInputs()}));
+[sl,qty].forEach(i=>i.addEventListener("input",()=>{calculate();saveInputs()}));
 rr.addEventListener("input",()=>{lastEdited="rr";calculate();saveInputs()});
 tp.addEventListener("input",()=>{lastEdited="tp";calculate();saveInputs()});
-$("resetButton").onclick=()=>{entry.value="";sl.value="";tp.value="";rr.value="";qty.value="1";lastEdited="rr";calculate();saveInputs();(inputMode==="points"?sl:entry).focus()};
+$("resetButton").onclick=()=>{sl.value="";tp.value="";rr.value="";qty.value="1";lastEdited="rr";calculate();saveInputs();sl.focus()};
 function online(){const on=navigator.onLine;$("offlineStatus").classList.toggle("offline",!on);$("statusText").textContent=on?"ONLINE":"OFFLINE"}
 addEventListener("online",online);addEventListener("offline",online);setSymbol(symbol);online();
 if("serviceWorker"in navigator)addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").catch(console.warn));

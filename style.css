@@ -112,3 +112,6 @@ html,body{height:100%;height:100dvh;overflow:hidden;overscroll-behavior:none}
 .shell{transform-origin:top center}
 
 @media(min-width:641px){.shell{grid-template-rows:auto 1fr auto}}
+
+.points-grid{margin-top:18px}
+@media(min-width:641px){.reward .metrics{grid-template-columns:repeat(2,minmax(0,1fr))}}
