@@ -93,7 +93,12 @@ function calculatePoints(){
 }
 
 function calculate(){calculatePoints()}
-function setSymbol(s){if(!visibleMarkets.includes(s))return;if(s!==symbol)saveInputs();symbol=s;localStorage.setItem("riskOneSymbol",s);restoreInputs();const c=CONTRACTS[s];marketSelect.value=s;$("infoSymbol").textContent=s;$("infoDescription").textContent=`1 point = $${c.point.toFixed(2)} / 1 tick = $${c.tickValue.toFixed(2)}`;calculate()}
+function updateMarketHeader(s){
+ const code=$("currentMarketCode"),name=$("currentMarketName");
+ if(code)code.textContent=s;
+ if(name)name.textContent=marketSelect.selectedOptions[0]?.textContent.split(" — ")[1]??"";
+}
+function setSymbol(s){if(!visibleMarkets.includes(s))return;if(s!==symbol)saveInputs();symbol=s;localStorage.setItem("riskOneSymbol",s);restoreInputs();const c=CONTRACTS[s];marketSelect.value=s;updateMarketHeader(s);$("infoSymbol").textContent=s;$("infoDescription").textContent=`1 point = $${c.point.toFixed(2)} / 1 tick = $${c.tickValue.toFixed(2)}`;calculate()}
 marketSelect.addEventListener("change",()=>setSymbol(marketSelect.value));
 [sl,qty].forEach(i=>i.addEventListener("input",()=>{calculate();saveInputs()}));
 rr.addEventListener("input",()=>{lastEdited="rr";calculate();saveInputs()});
