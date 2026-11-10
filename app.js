@@ -1,4 +1,4 @@
-const CONTRACTS={MGC:{tick:.1,tickValue:1,point:10,decimals:1},MNQ:{tick:.25,tickValue:.5,point:2,decimals:2},MYM:{tick:1,tickValue:.5,point:.5,decimals:0}};
+const CONTRACTS={MGC:{tick:.1,tickValue:1,point:10,decimals:1},MNQ:{tick:.25,tickValue:.5,point:2,decimals:2},MYM:{tick:1,tickValue:.5,point:.5,decimals:0},M2K:{tick:.1,tickValue:.5,point:5},MCL:{tick:.01,tickValue:1,point:100}};
 const $=id=>document.getElementById(id);
 const sl=$("slPrice"),tp=$("tpPrice"),qty=$("contracts"),rr=$("rrTarget");
 const STORAGE_KEY="riskOneInputsBySymbol";
@@ -17,10 +17,13 @@ function restoreInputs(){
  rr.value=typeof saved.rr==="string"?saved.rr:"";
  lastEdited=saved.lastEdited==="tp"?"tp":"rr";
 }
-const MARKET_KEY="riskOneVisibleMarkets";
+const MARKET_KEY="riskOneVisibleMarketsV2";
+const marketSelect=$("marketSelect");
 function loadVisibleMarkets(){
  try{
-  const saved=JSON.parse(localStorage.getItem(MARKET_KEY));
+  const current=localStorage.getItem(MARKET_KEY);
+  const saved=JSON.parse(current??localStorage.getItem("riskOneVisibleMarkets"));
+  if(current===null&&Array.isArray(saved))saved.push("M2K","MCL");
   const valid=Array.isArray(saved)?Object.keys(CONTRACTS).filter(s=>saved.includes(s)):[];
   return valid.length?valid:Object.keys(CONTRACTS);
  }catch{return Object.keys(CONTRACTS)}
@@ -28,7 +31,10 @@ function loadVisibleMarkets(){
 let visibleMarkets=loadVisibleMarkets();
 if(!visibleMarkets.includes(symbol))symbol=visibleMarkets[0];
 function renderMarkets(){
- document.querySelectorAll(".symbol").forEach(b=>{b.hidden=!visibleMarkets.includes(b.dataset.symbol)});
+ for(const option of marketSelect.options){
+  option.hidden=option.disabled=!visibleMarkets.includes(option.value);
+ }
+ marketSelect.value=symbol;
  document.querySelectorAll("[data-market]").forEach(input=>{input.checked=visibleMarkets.includes(input.dataset.market)});
 }
 document.querySelectorAll("[data-market]").forEach(input=>input.addEventListener("change",()=>{
@@ -87,8 +93,8 @@ function calculatePoints(){
 }
 
 function calculate(){calculatePoints()}
-function setSymbol(s){if(s!==symbol)saveInputs();symbol=s;localStorage.setItem("riskOneSymbol",s);restoreInputs();const c=CONTRACTS[s];document.querySelectorAll(".symbol").forEach(b=>b.classList.toggle("active",b.dataset.symbol===s));$("infoSymbol").textContent=s;$("infoDescription").textContent=`1 point = $${c.point.toFixed(2)} / 1 tick = $${c.tickValue.toFixed(2)}`;calculate()}
-document.querySelectorAll(".symbol").forEach(b=>b.onclick=()=>setSymbol(b.dataset.symbol));
+function setSymbol(s){if(!visibleMarkets.includes(s))return;if(s!==symbol)saveInputs();symbol=s;localStorage.setItem("riskOneSymbol",s);restoreInputs();const c=CONTRACTS[s];marketSelect.value=s;$("infoSymbol").textContent=s;$("infoDescription").textContent=`1 point = $${c.point.toFixed(2)} / 1 tick = $${c.tickValue.toFixed(2)}`;calculate()}
+marketSelect.addEventListener("change",()=>setSymbol(marketSelect.value));
 [sl,qty].forEach(i=>i.addEventListener("input",()=>{calculate();saveInputs()}));
 rr.addEventListener("input",()=>{lastEdited="rr";calculate();saveInputs()});
 tp.addEventListener("input",()=>{lastEdited="tp";calculate();saveInputs()});
