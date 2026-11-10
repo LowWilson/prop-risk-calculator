@@ -126,12 +126,13 @@ html,body{height:100%;height:100dvh;overflow:hidden;overscroll-behavior:none}
 .current-market strong{color:var(--lime);font-size:14px;font-weight:800;letter-spacing:.04em}
 @media(max-width:640px){.current-market{margin-top:3px;font-size:11px}.current-market strong{font-size:12px}}
 
-.input-panel .current-market{margin:0 0 10px;gap:9px;color:#a0a5af}
-.input-panel .current-market strong{font-size:18px}
+/* Make the active market the focal point of the input panel. */
+.input-panel .current-market{margin:0 0 12px;gap:10px;color:#a0a5af}
+.input-panel .current-market strong{font-size:clamp(38px,5vw,64px);line-height:1;letter-spacing:-.045em}
 @media(min-width:641px) and (min-height:800px){
- .input-panel{padding-block:32px}
- .input-panel .current-market{position:absolute;top:0;left:0;margin:0}
- .input-panel .current-market strong{font-size:clamp(20px,2.2vw,34px)}
+ .input-panel{padding-block:108px}
+ .input-panel .current-market{position:absolute;top:0;left:0;margin:0;flex-direction:column;gap:5px}
+ .input-panel .current-market strong{font-size:clamp(58px,5.8vw,88px)}
  .input-panel .current-market span{font-size:14px}
 }
-@media(max-width:640px){.input-panel .current-market strong{font-size:15px}}
+@media(max-width:640px){.input-panel .current-market strong{font-size:36px}}
